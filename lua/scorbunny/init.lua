@@ -1,5 +1,10 @@
 local M = {}
 
+-- TODO(patrik):
+--   - When exiting the window when job is still executing then just open
+--     the buffer
+--   - When exting the window when the job is done then delete the buffer
+
 local function get_buffer()
     return vim.api.nvim_create_buf(false, false)
 end
@@ -24,18 +29,23 @@ local function create_window(buf)
 end
 
 M.execute_cmd = function(cmd)
+    -- TODO(patrik): Check if a job is executing
+
     local buf = get_buffer()
     local win = create_window(buf)
 
-    M.running = true
+    M.job = {}
+
+    M.job.buf = buf
+    M.job.win = win
 
     local job_id = vim.fn.termopen(cmd, {
         on_exit = function(_, exit_code)
-            M.running = false
-            print("Exit code: " .. exit_code)
+            M.job.done = true
+            M.job.exit_code = exit_code
         end
     })
-    M.currect_job_id = job_id
+    M.job.id = job_id
 
     vim.api.nvim_buf_set_option(buf, "bufhidden", "hide")
     vim.api.nvim_buf_set_option(buf, "buflisted", false)
@@ -49,8 +59,8 @@ M.execute_cmd = function(cmd)
         buffer = buf,
 
         callback = function()
-            if not M.running then
-                vim.notify("Not running");
+            if M.job.done then
+                vim.notify("Job done");
             end
 
             vim.api.nvim_win_close(win, true)
@@ -66,6 +76,10 @@ M.execute_cmd = function(cmd)
             vim.api.nvim_win_set_cursor(win, { count, 0 })
         end
     });
+end
+
+M.kill = function()
+    -- TODO(patrik): Kill the job
 end
 
 return M
