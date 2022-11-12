@@ -31,6 +31,13 @@ end
 M.execute_cmd = function(cmd)
     -- TODO(patrik): Check if a job is executing
 
+    -- TODO(patrik): If the job exist and is done then show the window
+
+    if M.job then
+        M.job.win = create_window(M.job.buf)
+        return
+    end
+
     local buf = get_buffer()
     local win = create_window(buf)
 
@@ -59,11 +66,19 @@ M.execute_cmd = function(cmd)
         buffer = buf,
 
         callback = function()
+            vim.api.nvim_win_close(M.job.win, true)
+
             if M.job.done then
                 vim.notify("Job done");
+                -- TODO(patrik): Delete buffer
+
+                vim.api.nvim_buf_delete(M.job.buf, {
+                    force = true
+                })
+                M.job = nil
+                return
             end
 
-            vim.api.nvim_win_close(win, true)
         end
     });
 
@@ -72,8 +87,8 @@ M.execute_cmd = function(cmd)
         buffer = buf,
 
         callback = function()
-            local count = vim.api.nvim_buf_line_count(buf)
-            vim.api.nvim_win_set_cursor(win, { count, 0 })
+            local count = vim.api.nvim_buf_line_count(M.job.buf)
+            vim.api.nvim_win_set_cursor(M.job.win, { count, 0 })
         end
     });
 end
