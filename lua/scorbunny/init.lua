@@ -28,14 +28,24 @@ local function create_window(buf)
     return win
 end
 
+local function delete_buffer()
+    if M.job.buf and vim.api.nvim_buf_is_valid(M.job.buf) then
+        vim.api.nvim_buf_delete(M.job.buf, {
+            force = true
+        })
+    end
+
+    M.job.buf = nil
+end
+
 M.execute_cmd = function(cmd)
-    -- TODO(patrik): Check if a job is executing
-
-    -- TODO(patrik): If the job exist and is done then show the window
-
     if M.job then
-        M.job.win = create_window(M.job.buf)
-        return
+        if not M.job.done then
+            vim.notify("Job still running")
+            return
+        end
+
+        delete_buffer()
     end
 
     local buf = get_buffer()
@@ -50,6 +60,8 @@ M.execute_cmd = function(cmd)
         on_exit = function(_, exit_code)
             M.job.done = true
             M.job.exit_code = exit_code
+
+            vim.notify("Job done")
         end
     })
     M.job.id = job_id
@@ -67,18 +79,7 @@ M.execute_cmd = function(cmd)
 
         callback = function()
             vim.api.nvim_win_close(M.job.win, true)
-
-            if M.job.done then
-                vim.notify("Job done");
-                -- TODO(patrik): Delete buffer
-
-                vim.api.nvim_buf_delete(M.job.buf, {
-                    force = true
-                })
-                M.job = nil
-                return
-            end
-
+            M.job.win = nil
         end
     });
 
@@ -91,6 +92,16 @@ M.execute_cmd = function(cmd)
             vim.api.nvim_win_set_cursor(M.job.win, { count, 0 })
         end
     });
+end
+
+M.open_window = function()
+    if not M.job then
+        vim.notify("No job running", vim.log.levels.ERROR);
+        return
+    end
+
+    local win = create_window(M.job.buf);
+    M.job.win = win
 end
 
 M.kill = function()
