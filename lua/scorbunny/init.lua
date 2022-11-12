@@ -1,7 +1,8 @@
 local M = {}
 
 local default_opts = {
-    zindex = 49
+    zindex = 49,
+    notify = true,
 }
 
 -- TODO(patrik):
@@ -14,6 +15,10 @@ M.setup = function(opts)
 
     if opts.zindex then
         M.opts.zindex = opts.zindex
+    end
+
+    if opts.notify ~= nil then
+        M.opts.notify = opts.notify
     end
 end
 
@@ -53,10 +58,16 @@ local function delete_buffer()
     M.job.buf = nil
 end
 
+local function notify(msg)
+    if M.opts.notify then
+        vim.notify(msg)
+    end
+end
+
 M.execute_cmd = function(cmd)
     if M.job then
         if not M.job.done then
-            vim.notify("Job still running")
+            notify("Job still running")
             return
         end
 
@@ -76,7 +87,7 @@ M.execute_cmd = function(cmd)
             M.job.done = true
             M.job.exit_code = exit_code
 
-            vim.notify("Job done")
+            notify("Job done")
         end
     })
     M.job.id = job_id
@@ -111,6 +122,7 @@ end
 
 M.open_window = function()
     if not M.job then
+        -- TODO(patrik): Should this be included with M.opts.notify?
         vim.notify("No job running", vim.log.levels.ERROR);
         return
     end
@@ -125,16 +137,15 @@ end
 
 M.kill = function()
     if not M.job then
-        vim.notify("No job running")
+        notify("No job running")
         return
     end
 
     if M.job.done then
-        vim.notify("Job already done")
+        notify("Job already done")
         return
     end
 
-    -- TODO(patrik): Kill the job
     vim.fn.jobstop(M.job.id)
 end
 
