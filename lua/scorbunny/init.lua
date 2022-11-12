@@ -137,8 +137,13 @@ M.set_compile_cmd = function(cmd)
 end
 
 M.ask_compile_cmd = function()
-    local cmd = vim.fn.input("Compile Command: ")
-    M.set_compile_cmd(cmd)
+    if M.compile_cmd then
+        local cmd = vim.fn.input("Compile Command: ", M.compile_cmd)
+        M.set_compile_cmd(cmd)
+    else
+        local cmd = vim.fn.input("Compile Command: ")
+        M.set_compile_cmd(cmd)
+    end
 end
 
 M.open_window = function()
