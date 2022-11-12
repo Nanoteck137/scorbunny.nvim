@@ -1,9 +1,6 @@
 local M = {}
 
 -- TODO(patrik):
---   - When exiting the window when job is still executing then just open
---     the buffer
---   - When exting the window when the job is done then delete the buffer
 
 local function get_buffer()
     return vim.api.nvim_create_buf(false, false)
@@ -100,12 +97,27 @@ M.open_window = function()
         return
     end
 
+    if M.job.win then
+        return
+    end
+
     local win = create_window(M.job.buf);
     M.job.win = win
 end
 
 M.kill = function()
+    if not M.job then
+        vim.notify("No job running")
+        return
+    end
+
+    if M.job.done then
+        vim.notify("Job already done")
+        return
+    end
+
     -- TODO(patrik): Kill the job
+    vim.fn.jobstop(M.job.id)
 end
 
 return M
