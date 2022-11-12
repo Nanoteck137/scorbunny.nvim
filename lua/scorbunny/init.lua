@@ -5,8 +5,6 @@ local default_opts = {
     notify = true,
 }
 
--- TODO(patrik):
-
 M.setup = function(opts)
     M.opts = vim.deepcopy(default_opts)
     if not opts then
