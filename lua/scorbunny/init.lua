@@ -118,6 +118,24 @@ M.execute_cmd = function(cmd)
     });
 end
 
+M.compile = function()
+    if not M.compile_cmd then
+        vim.notify("No compile command", vim.log.levels.ERROR)
+        return
+    end
+
+    M.execute_cmd(M.compile_cmd)
+end
+
+M.set_compile_cmd = function(cmd)
+    M.compile_cmd = cmd
+end
+
+M.ask_compile_cmd = function()
+    local cmd = vim.fn.input("Compile Command: ")
+    M.set_compile_cmd(cmd)
+end
+
 M.open_window = function()
     if not M.job then
         -- TODO(patrik): Should this be included with M.opts.notify?
