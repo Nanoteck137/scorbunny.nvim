@@ -54,6 +54,11 @@ local function delete_buffer()
     M.job.buf = nil
 end
 
+local function close_window()
+    vim.api.nvim_win_close(M.job.win, true)
+    M.job.win = nil
+end
+
 local function notify(msg)
     if M.opts.notify then
         vim.notify(msg)
@@ -91,6 +96,9 @@ M.execute_cmd = function(cmd)
     vim.api.nvim_buf_set_option(buf, "bufhidden", "hide")
     vim.api.nvim_buf_set_option(buf, "buflisted", false)
 
+    local bufopts = { noremap = true, silent = true, buffer = buf }
+    vim.keymap.set("n", "<esc>", function() close_window() end, bufopts)
+
     local group_id = vim.api.nvim_create_augroup("scorbunny_group", {
         clear = true
     })
@@ -100,8 +108,7 @@ M.execute_cmd = function(cmd)
         buffer = buf,
 
         callback = function()
-            vim.api.nvim_win_close(M.job.win, true)
-            M.job.win = nil
+            close_window()
         end
     });
 
