@@ -59,9 +59,13 @@ local function close_window()
     M.job.win = nil
 end
 
-local function notify(msg)
+local function notify(msg, err)
     if M.opts.notify then
-        vim.notify(msg)
+        if err then
+            vim.notify(msg, vim.log.levels.ERROR)
+        else
+            vim.notify(msg)
+        end
     end
 end
 
@@ -90,7 +94,7 @@ M.execute_cmd = function(cmd)
 
             -- TODO(patrik): When the exit_code is not 0 then we should
             -- notify with error
-            notify("Job exited with code: " .. M.job.exit_code)
+            notify("Job exited with code: " .. M.job.exit_code, M.job.exit_code ~= 0)
         end
     })
     M.job.id = job_id
@@ -123,29 +127,6 @@ M.execute_cmd = function(cmd)
             vim.api.nvim_win_set_cursor(M.job.win, { count, 0 })
         end
     });
-end
-
-M.compile = function()
-    if not M.compile_cmd then
-        vim.notify("No compile command", vim.log.levels.ERROR)
-        return
-    end
-
-    M.execute_cmd(M.compile_cmd)
-end
-
-M.set_compile_cmd = function(cmd)
-    M.compile_cmd = cmd
-end
-
-M.ask_compile_cmd = function()
-    if M.compile_cmd then
-        local cmd = vim.fn.input("Compile Command: ", M.compile_cmd)
-        M.set_compile_cmd(cmd)
-    else
-        local cmd = vim.fn.input("Compile Command: ")
-        M.set_compile_cmd(cmd)
-    end
 end
 
 M.open_window = function()
