@@ -20,6 +20,9 @@ local function create_window(buf)
         height = height,
         row = gheight / 2.0 - height / 2.0,
         col = gwidth / 2.0 - width / 2.0,
+
+        style = "minimal",
+        zindex = 49,
     })
 
     return win
