@@ -88,7 +88,9 @@ M.execute_cmd = function(cmd)
             M.job.done = true
             M.job.exit_code = exit_code
 
-            notify("Job done")
+            -- TODO(patrik): When the exit_code is not 0 then we should
+            -- notify with error
+            notify("Job exited with code: " .. M.job.exit_code)
         end
     })
     M.job.id = job_id
