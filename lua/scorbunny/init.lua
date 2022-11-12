@@ -1,12 +1,10 @@
 local M = {}
-
-local default_opts = {
+M.opts = {
     zindex = 49,
     notify = true,
 }
 
 M.setup = function(opts)
-    M.opts = vim.deepcopy(default_opts)
     if not opts then
         return
     end
