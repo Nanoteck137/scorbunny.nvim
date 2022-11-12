@@ -1,6 +1,21 @@
 local M = {}
 
+local default_opts = {
+    zindex = 49
+}
+
 -- TODO(patrik):
+
+M.setup = function(opts)
+    M.opts = vim.deepcopy(default_opts)
+    if not opts then
+        return
+    end
+
+    if opts.zindex then
+        M.opts.zindex = opts.zindex
+    end
+end
 
 local function get_buffer()
     return vim.api.nvim_create_buf(false, false)
@@ -22,7 +37,7 @@ local function create_window(buf)
         col = gwidth / 2.0 - width / 2.0,
 
         style = "minimal",
-        zindex = 49,
+        zindex = M.opts.zindex,
     })
 
     return win
