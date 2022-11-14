@@ -1,3 +1,9 @@
+-- TODO(patrik):
+--   - Add user commands
+--     - ScorbunnyExec
+--     - ScorbunnyOpen
+--     - ScorbunnyKill
+
 local M = {}
 M.opts = {
     zindex = 49,
