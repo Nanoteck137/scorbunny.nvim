@@ -8,6 +8,8 @@ local M = {}
 M.opts = {
     zindex = 49,
     notify = true,
+
+    on_job_done = function() end,
 }
 
 M.setup = function(opts)
@@ -21,6 +23,10 @@ M.setup = function(opts)
 
     if opts.notify ~= nil then
         M.opts.notify = opts.notify
+    end
+
+    if opts.on_job_done ~= nil then
+        M.opts.on_job_done = opts.on_job_done
     end
 end
 
@@ -97,10 +103,7 @@ M.execute_cmd = function(cmd)
         on_exit = function(_, exit_code)
             M.job.done = true
             M.job.exit_code = exit_code
-
-            -- TODO(patrik): When the exit_code is not 0 then we should
-            -- notify with error
-            notify("Job exited with code: " .. M.job.exit_code, M.job.exit_code ~= 0)
+            M.opts.on_job_done();
         end
     })
     M.job.id = job_id
@@ -137,8 +140,6 @@ end
 
 M.open_window = function()
     if not M.job then
-        -- TODO(patrik): Should this be included with M.opts.notify?
-        vim.notify("No job running", vim.log.levels.ERROR);
         return
     end
 
@@ -152,12 +153,10 @@ end
 
 M.kill = function()
     if not M.job then
-        notify("No job running")
         return
     end
 
     if M.job.done then
-        notify("Job already done")
         return
     end
 
