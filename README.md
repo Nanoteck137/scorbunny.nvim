@@ -30,6 +30,11 @@ require('scorbunny').setup {
     zindex = 49, -- The zindex of the window, we use 49 so that notifications from the 'rcarriga/nvim-notify' plugin show on top of command window
 
     notify = true, -- Disable notifications from the plugin, doesn't disable error notifications
+
+    -- Callback for when the job is done
+    on_job_done = function()
+        print("Exit Code", require('scorbunny').job.exit_code)
+    end
 }
 ```
 
@@ -42,7 +47,7 @@ require('scorbunny').execute_cmd(cmd)
 -- Kill the current executing command
 require('scorbunny').kill()
 
--- Open the window with the command output 
+-- Open the window with the command output
 require('scorbunny').open_window()
 ```
 
